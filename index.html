@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator</title>
+    <style>
+        body {
+            font-family: Georgia, serif;
+            background-color: #8a7979;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333333;
+        }
+        input[type="number"] {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #8a2727;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+        }
+        button:hover {
+            background-color: #cad9d9;
+        }
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+</head>
+<body>
+    <h1>Required Grade Calculator</h1>
+    
+    <form id="gradeForm">
+        <label for="prelim" style="font-size: 24px;">Enter your Prelim Grade:</label><br>
+        <input type="number" id="prelim" name="prelim" min="1" max="100" step="0.01" required><br><br>
+        <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+
+    <p id="error" class="error"></p>
+    <p id="result"></p>
+
+    <footer>
+        <p>By Dion Andrei G. Quiamzon (BSCS)</p>
+    </footer>
+
+    <py-script>
+        def calculate_grades(prelim):
+            prelim_weight = 0.2
+            midterm_weight = 0.3
+            final_weight = 0.5
+            desired_grade = 75
+
+            prelim_score = float(prelim) * prelim_weight
+            added_weights = midterm_weight + final_weight
+            required_midterm_final = (desired_grade - prelim_score) / added_weights
+
+            if required_midterm_final > 100:
+                return None, None, True, False, False
+            else:
+                midterm_final_grade = round(required_midterm_final, 2)
+                dean_list = midterm_final_grade <= 81.25
+                difficult_pass = midterm_final_grade >= 90
+                return midterm_final_grade, midterm_final_grade, False, dean_list, difficult_pass
+        
+        def calculate():
+            prelim = document.getElementById('prelim').value
+            error_elem = document.getElementById('error')
+            result_elem = document.getElementById('result')
+            
+            try:
+                prelim = float(prelim)
+                if prelim < 1 or prelim > 100:
+                    error_elem.innerHTML = "Please enter a grade between 1 and 100."
+                    result_elem.innerHTML = ""
+                else:
+                    midterm, final, impossible, dean_list, difficult_pass = calculate_grades(prelim)
+                    if impossible:
+                        error_elem.innerHTML = "It is impossible to achieve the desired grade with the given prelim score."
+                        result_elem.innerHTML = ""
+                    else:
+                        result = f"<p>To pass with a grade of 75, you need at least:</p>"
+                        result += f"<p>Midterm Grade: <strong>{midterm}</strong></p>"
+                        result += f"<p>Final Grade: <strong>{final}</strong></p>"
+                        if dean_list:
+                            result += "<p style='color:green;'>You can qualify for the Dean's Lister!</p>"
+                        if difficult_pass:
+                            result += "<p style='color:red;'>It's difficult to pass with this Prelim grade. You'll need a Midterm and Final Grade of 90 or higher!</p>"
+                        result_elem.innerHTML = result
+                        error_elem.innerHTML = ""
+            except ValueError:
+                error_elem.innerHTML = "Invalid input. Please enter a valid number."
+                result_elem.innerHTML = ""
+    </py-script>
+</body>
+</html>
